@@ -6,15 +6,12 @@ app.use(cors());
 const port = 5001;
 const nodemailer = require("nodemailer");
 require("dotenv").config();
+const { body, validationResult } = require("express-validator");
 
 const validateData = ({ name, email, message }) => {
     // Validate name
     if (name.length < 2) return false;
     console.log("Name: ", name);
-
-    // Validate email
-    if (email.length < 2) return false;
-    console.log("Email: ", email);
 
     // Validate message
     if (message.length < 2) return false;
@@ -27,8 +24,10 @@ const validateData = ({ name, email, message }) => {
 const sendEmail = ({ name, email, message }) => {
     // Send email
     console.log("Sending email");
+    // return;
     const username = process.env.REACT_APP_USER;
     const password = process.env.REACT_APP_PASSWORD;
+    const recipient = process.env.REACT_APP_RECIPIENT;
 
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -39,8 +38,8 @@ const sendEmail = ({ name, email, message }) => {
     });
 
     const mailOptions = {
-        from: `${email}`,
-        to: "bertybubbles@hotmail.com",
+        from: email,   // Email of person completing contact form
+        to: recipient,  // Person who's email is sent to (me)
         subject: 'Contact form submission from website',
         html:
             `<h1>Contact Form Details</h1>
@@ -60,25 +59,23 @@ const sendEmail = ({ name, email, message }) => {
 
 
 app.get("/", function (req, res) {
-    res.send("Hello World from Express")
+    res.send("Hello World!")
 });
 
-app.get("/test", function (req, res) {
-    res.send("Hello test")
-});
-
-app.post("/contact-us", function (req, res) {
-    console.log("client request: ", req.body)
-    // Validate form data received
-    let response = {};
-    if (validateData(req.body)) {
-        sendEmail(req.body);
-        response = ({ "status": "success", "message": "Thank you.  Your message has been sent." })
-    } else {
-        response = ({ "status": "failure", "message": "Messaged failed to send.  Please check your form data and try again." })
+app.post("/contact-us",
+    // username must be an email
+    body('email').isEmail(),
+    (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        // Validation looks good, lets send the email
+        validateData(req.body) && sendEmail(req.body);
+        res.status(200).send({ "message": "Thank you.  Your message has been sent." })
+        // return res.status(200).json({ "message": "Thank you.  Your message has been sent." })
     }
-    res.send(response);
-});
+)
 
 app.listen(port, function () {
     console.log(`Example app listening on port ${port}!`)

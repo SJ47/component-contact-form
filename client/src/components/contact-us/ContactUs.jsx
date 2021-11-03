@@ -13,20 +13,34 @@ const ContactUs = () => {
         setFormData({ ...formData, [event.target.name]: event.target.value });
     };
 
-    const handleFormSubmit = (event) => {
+    const handleFormSubmit = async (event) => {
         event.preventDefault();
-        console.log("FORM Submitted");
 
-        fetch("http://localhost:5001/contact-us/", {
-            headers: {
-                "Content-Type": "application/json",
-            },
-            method: "POST",
-            body: JSON.stringify(formData),
-        })
-            .then((res) => res.json())
-            .then((json) => console.log(json))
-            .catch((err) => console.log("Request failed", err));
+        try {
+            let response = await fetch("http://localhost:5001/contact-us/", {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                body: JSON.stringify(formData),
+            });
+            const data = await response.json();
+
+            if (response.statusText !== "OK") {
+                throw new Error(
+                    `${data.errors[0].msg} in ${data.errors[0].param}`
+                );
+            } else {
+                alert(data.message);
+                setFormData({
+                    name: "",
+                    email: "",
+                    message: "",
+                });
+            }
+        } catch (error) {
+            alert(error);
+        }
     };
 
     return (
@@ -38,6 +52,7 @@ const ContactUs = () => {
                     <label htmlFor="name">NAME</label>
                     <input
                         name="name"
+                        value={formData.name}
                         type="text"
                         placeholder="Your name"
                         onChange={handleInputChange}
@@ -46,7 +61,8 @@ const ContactUs = () => {
                     <label htmlFor="email">EMAIL</label>
                     <input
                         name="email"
-                        type="text"
+                        value={formData.email}
+                        type="email"
                         placeholder="Your email"
                         onChange={handleInputChange}
                     />
@@ -54,6 +70,7 @@ const ContactUs = () => {
                     <label htmlFor="message">MESSAGE</label>
                     <textarea
                         name="message"
+                        value={formData.message}
                         rows="2"
                         cols="50"
                         placeholder="Your message"
