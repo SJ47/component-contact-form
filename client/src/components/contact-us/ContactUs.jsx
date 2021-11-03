@@ -27,16 +27,6 @@ const ContactUs = () => {
             .then((res) => res.json())
             .then((json) => console.log(json))
             .catch((err) => console.log("Request failed", err));
-        // }).then((res) => res.json());
-
-        // postTask(payload) {
-        // return fetch(baseURL, {
-        //     method: 'POST',
-        //     body: JSON.stringify(payload),
-        //     headers: { 'Content-Type': 'application/json' }
-        // })
-        //     .then(res => res.json())
-        // },
     };
 
     return (

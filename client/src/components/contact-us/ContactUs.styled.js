@@ -48,6 +48,7 @@ export const StyledContactUsContainer = styled.div`
         &:hover {
             background: red;
             color: white;
+            cursor: pointer;
         }
     }
 `;
