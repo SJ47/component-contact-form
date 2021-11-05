@@ -27,6 +27,6 @@
 
 ![](./screenshot-form.png)
 
-### Screenshot - Successfully Send Form
+### Screenshot - Successfully Sent Form
 
 ![](./screenshot-success.png)
