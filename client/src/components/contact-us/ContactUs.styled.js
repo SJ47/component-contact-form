@@ -2,7 +2,8 @@ import styled from "styled-components";
 
 export const StyledContactUsContainer = styled.div`
     height: 50vh;
-    width: 80%;
+    min-width: 200px;
+    max-width: 800px;
     margin: 0 auto;
     font-family: 'Roboto', sans-serif;
     font-size: 1.1rem;
@@ -26,6 +27,11 @@ export const StyledContactUsContainer = styled.div`
         padding-top: 2.2em;
         font-weight: bold;
         padding-bottom: .4em;
+
+        em {
+           font-weight: normal;
+           font-size: smaller;
+        }
     }
 
     input, textarea {
@@ -35,8 +41,16 @@ export const StyledContactUsContainer = styled.div`
         border: 1px solid lightgrey;
         border-radius: 5px;
     }
+`;
 
-    input:last-of-type {
+export const StyledMessageOnSubmit = styled.div`
+    color: ${(props => props.dataValid ? "green" : "red")};
+    display: ${(props => props.message === "" ? "none" : "block")};
+    text-align: center;
+    padding-top: 1em;
+`;
+
+export const StyledSubmitButton = styled.input`
         margin-top: 1.5em;
         color: red;
         border: none;
@@ -44,11 +58,11 @@ export const StyledContactUsContainer = styled.div`
         border: 2px solid red;
         font-weight: bold;
         font-size: 1.2rem;
+        display: ${(props => props.dataValid ? "none" : "block")};
 
         &:hover {
             background: red;
             color: white;
             cursor: pointer;
         }
-    }
 `;

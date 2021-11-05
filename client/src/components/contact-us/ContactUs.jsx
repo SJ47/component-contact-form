@@ -1,7 +1,13 @@
 import React, { useState } from "react";
-import { StyledContactUsContainer } from "./ContactUs.styled";
+import {
+    StyledContactUsContainer,
+    StyledMessageOnSubmit,
+    StyledSubmitButton,
+} from "./ContactUs.styled";
 
 const ContactUs = () => {
+    const [message, setMessage] = useState("");
+    const [dataValid, setDataValid] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -9,12 +15,13 @@ const ContactUs = () => {
     });
 
     const handleInputChange = (event) => {
-        console.log("Input changing...");
         setFormData({ ...formData, [event.target.name]: event.target.value });
     };
 
     const handleFormSubmit = async (event) => {
         event.preventDefault();
+        setMessage("");
+        setDataValid(false);
 
         try {
             let response = await fetch("http://localhost:5001/contact-us/", {
@@ -27,11 +34,13 @@ const ContactUs = () => {
             const data = await response.json();
 
             if (response.statusText !== "OK") {
-                throw new Error(
-                    `${data.errors[0].msg} in ${data.errors[0].param}`
+                setMessage(
+                    `Failed to send message. ${data.errors[0].msg} in ${data.errors[0].param}.  Please try again.`
                 );
+                setDataValid(false);
             } else {
-                alert(data.message);
+                setMessage("Thank you, your message was successfully sent");
+                setDataValid(true);
                 setFormData({
                     name: "",
                     email: "",
@@ -39,6 +48,7 @@ const ContactUs = () => {
                 });
             }
         } catch (error) {
+            setDataValid(false);
             alert(error);
         }
     };
@@ -49,25 +59,35 @@ const ContactUs = () => {
                 <h1>Contact</h1>
                 <p>I am looking forward to your message.</p>
                 <form onSubmit={handleFormSubmit}>
-                    <label htmlFor="name">NAME</label>
+                    <label htmlFor="name">
+                        NAME <em>(required)</em>
+                    </label>
                     <input
                         name="name"
                         value={formData.name}
                         type="text"
                         placeholder="Your name"
                         onChange={handleInputChange}
+                        required
+                        minLength="2"
+                        maxLength="40"
                     />
-
-                    <label htmlFor="email">EMAIL</label>
+                    <label htmlFor="email">
+                        EMAIL <em>(required)</em>
+                    </label>
                     <input
                         name="email"
                         value={formData.email}
                         type="email"
                         placeholder="Your email"
                         onChange={handleInputChange}
+                        required
+                        minLength="3"
+                        maxLength="254"
                     />
-
-                    <label htmlFor="message">MESSAGE</label>
+                    <label htmlFor="message">
+                        MESSAGE <em>(required)</em>
+                    </label>
                     <textarea
                         name="message"
                         value={formData.message}
@@ -75,9 +95,15 @@ const ContactUs = () => {
                         cols="50"
                         placeholder="Your message"
                         onChange={handleInputChange}
+                        required
+                        maxLength="1000" // minLength not supported in textArea
                     ></textarea>
-                    <input type="submit" />
+                    <StyledSubmitButton type="submit" dataValid={dataValid} />
                 </form>
+
+                <StyledMessageOnSubmit dataValid={dataValid} message={message}>
+                    {message}
+                </StyledMessageOnSubmit>
             </StyledContactUsContainer>
         </div>
     );

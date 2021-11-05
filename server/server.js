@@ -10,20 +10,13 @@ const { body, validationResult } = require("express-validator");
 
 const validateData = ({ name, email, message }) => {
     // Validate name
-    if (name.length < 2) return false;
-    console.log("Name: ", name);
-
-    // Validate message
-    if (message.length < 2) return false;
-    console.log("Message: ", message);
-
-    // Passed all data checks
-    return true;
+    console.log("Message length: ", message.length);
+    return name.length >= 2 && message.length >= 2;
 }
 
 const sendEmail = ({ name, email, message }) => {
     // Send email
-    console.log("Sending email");
+    // console.log("Sending email");
     // return;
     const username = process.env.REACT_APP_USER;
     const password = process.env.REACT_APP_PASSWORD;
@@ -65,15 +58,20 @@ app.get("/", function (req, res) {
 app.post("/contact-us",
     // username must be an email
     body('email').isEmail(),
+    // name must be at least 2 chars
+    body('name').isLength({ min: 2, max: 40 }),
+    // message must be at least 2 chars
+    body('message').isLength({ min: 1, max: 1000 }),
+
     (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
+        } else {
+            // Validation looks good, lets send the email and send success message back to client
+            sendEmail(req.body)
+            res.status(200).send({ "message": "Thank you.  Your message has been sent." })
         }
-        // Validation looks good, lets send the email
-        validateData(req.body) && sendEmail(req.body);
-        res.status(200).send({ "message": "Thank you.  Your message has been sent." })
-        // return res.status(200).json({ "message": "Thank you.  Your message has been sent." })
     }
 )
 
